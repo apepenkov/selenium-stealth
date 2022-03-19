@@ -1,3 +1,5 @@
+import typing
+
 from selenium.webdriver import Chrome as Driver
 
 from .chrome_app import chrome_app
@@ -29,32 +31,41 @@ If user_agent = None then selenium-stealth only remove the 'headless' from userA
 """
 
 
-def stealth(driver: Driver, user_agent: str = None,
-            languages: [str] = ["en-US", "en"],
-            vendor: str = "Google Inc.",
-            platform: str = None,
-            webgl_vendor: str = "Intel Inc.",
-            renderer: str = "Intel Iris OpenGL Engine",
-            fix_hairline: bool = False,
-            run_on_insecure_origins: bool = False, **kwargs) -> None:
+def stealth(
+    driver: Driver,
+    user_agent: str = None,
+    languages: [str] = ["en-US", "en"],
+    vendor: str = "Google Inc.",
+    platform: str = None,
+    webgl_vendor: str = "Intel Inc.",
+    renderer: str = "Intel Iris OpenGL Engine",
+    fix_hairline: bool = False,
+    run_on_insecure_origins: bool = False,
+    **kwargs
+) -> typing.List[str]:
     if not isinstance(driver, Driver):
-        raise ValueError("driver must is selenium.webdriver.Chrome, currently this lib only support Chrome")
+        raise ValueError(
+            "driver must is selenium.webdriver.Chrome, currently this lib only support Chrome"
+        )
 
-    ua_languages = ','.join(languages)
+    ua_languages = ",".join(languages)
 
-    with_utils(driver, **kwargs)
-    chrome_app(driver, **kwargs)
-    chrome_runtime(driver, run_on_insecure_origins, **kwargs)
-    iframe_content_window(driver, **kwargs)
-    media_codecs(driver, **kwargs)
-    navigator_languages(driver, languages, **kwargs)
-    navigator_permissions(driver, **kwargs)
-    navigator_plugins(driver, **kwargs)
-    navigator_vendor(driver, vendor, **kwargs)
-    navigator_webdriver(driver, **kwargs)
+    identifiers = []
+
+    identifiers.append(with_utils(driver, **kwargs))
+    identifiers.append(chrome_app(driver, **kwargs))
+    identifiers.append(chrome_runtime(driver, run_on_insecure_origins, **kwargs))
+    identifiers.append(iframe_content_window(driver, **kwargs))
+    identifiers.append(media_codecs(driver, **kwargs))
+    identifiers.append(navigator_languages(driver, languages, **kwargs))
+    identifiers.append(navigator_permissions(driver, **kwargs))
+    identifiers.append(navigator_plugins(driver, **kwargs))
+    identifiers.append(navigator_vendor(driver, vendor, **kwargs))
+    identifiers.append(navigator_webdriver(driver, **kwargs))
     user_agent_override(driver, user_agent, ua_languages, platform, **kwargs)
-    webgl_vendor_override(driver, webgl_vendor, renderer, **kwargs)
-    window_outerdimensions(driver, **kwargs)
+    identifiers.append(webgl_vendor_override(driver, webgl_vendor, renderer, **kwargs))
+    identifiers.append(window_outerdimensions(driver, **kwargs))
 
     if fix_hairline:
-        hairline_fix(driver, **kwargs)
+        identifiers.append(hairline_fix(driver, **kwargs))
+    return identifiers

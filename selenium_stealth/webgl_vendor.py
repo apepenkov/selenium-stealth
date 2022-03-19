@@ -4,13 +4,11 @@ from selenium.webdriver import Chrome as Driver
 
 
 def webgl_vendor_override(
-    driver: Driver,
-    webgl_vendor: str,
-    renderer: str,
-    **kwargs
-) -> None:
-    evaluateOnNewDocument(
-        driver, Path(__file__).parent.joinpath("js/webgl.vendor.js").read_text(),
+    driver: Driver, webgl_vendor: str, renderer: str, **kwargs
+) -> str:
+    return evaluateOnNewDocument(
+        driver,
+        Path(__file__).parent.joinpath("js/webgl.vendor.js").read_text(),
         webgl_vendor,
         renderer,
     )
